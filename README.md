@@ -1,4 +1,4 @@
-# GitLab Migration & Branch‑Housekeeping Toolkit 🚀
+# GitLab Migration & Branch‑Housekeeping Toolkit 🚀
 
 A **battle‑tested Python toolkit** that automates:
 
@@ -6,19 +6,22 @@ A **battle‑tested Python toolkit** that automates:
 * **Clean, namespace‑safe imports** into a destination GitLab instance
 * **Post‑import cleanup** (fixing wrong namespaces, trimming obsolete branches, enforcing branch standards)
 
-Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.io/) SDK, these scripts have helped teams migrate **50 + micro‑repos** in minutes—while keeping branch hygiene spotless.
+Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.io/) SDK, these scripts have helped teams migrate **50 + micro‑repos** in minutes—while keeping branch hygiene spotless.
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
-1. [High‑Level Architecture](#architecture)
+1. [High‑Level Architecture](#high-level-architecture)
 2. [Prerequisites](#prerequisites)
-3. [Quick Start](#quick-start)
+3. [Quick Start](#quick-start)
 4. [Script Walk‑Through](#script-walk-through)
-   5.1 [export.py](#exportpy) 5.2 [import.py](#importpy) 5.3 [selected\_import.py](#selected_importpy)
-   5.4 [cleanup.py](#cleanuppy) 5.5 [remove\_obsolete\_branches.py](#remove_obsolete-branchespy)
-   5.6 [specific\_project\_remove\_branches.py](#specific_project_remove_branchespy)
+   1. [export.py](#exportpy)
+   2. [import.py](#importpy)
+   3. [selected\_import.py](#selected-importpy)
+   4. [cleanup.py](#cleanuppy)
+   5. [remove\_obsolete\_branches.py](#remove-obsolete-branchespy)
+   6. [specific\_project\_remove\_branches.py](#specific-project-remove-branchespy)
 5. [End‑to‑End Migration Guide](#step-by-step-migration)
 6. [Troubleshooting](#troubleshooting)
 7. [Extending the Toolkit](#extending)
@@ -26,18 +29,17 @@ Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.
 
 ---
 
-
-## 🗺️ Architecture<a name="architecture"></a>
+## High‑Level Architecture
 
 ```mermaid
 flowchart LR
-    subgraph Source GitLab
+    subgraph "Source GitLab"
         A((Group: back-office)) -->|GitLab Export API| B[export.py]
     end
 
     B -->|*.tar.gz| Store[(Shared Storage<br/>or Local Disk)]
 
-    subgraph Destination GitLab
+    subgraph "Destination GitLab"
         C[import.py / selected_import.py] -->|GitLab Import API| D((Group: back-office-dev))
         D -->|Namespace Fix| cleanup[cleanup.py]
         D -->|Branch Hygiene| branchOps[remove_obsolete_branches.py<br/>specific_project_remove_branches.py]
@@ -47,6 +49,20 @@ flowchart LR
     class A,C,D gitlab
 ```
 
+📂 **Directory layout**
+
+```
+.
+├── scripts/
+│   ├── export.py
+│   ├── import.py
+│   ├── selected_import.py
+│   ├── cleanup.py
+│   ├── remove_obsolete_branches.py
+│   └── specific_project_remove_branches.py
+└── README.md (this file)
+```
+
 * **export.py** triggers asynchronous exports and downloads resulting archives
 * **import.py / selected\_import.py** stream archives into the correct destination group
 * **cleanup.py** deletes projects accidentally imported under default user namespaces
@@ -54,127 +70,130 @@ flowchart LR
 
 ---
 
-## ⚙️ Prerequisites<a name="prerequisites"></a>
+## Prerequisites
 
-| Requirement                     | Notes                                      |
-| ------------------------------- | ------------------------------------------ |
-| **Python ≥ 3.8**                | Tested on 3.8–3.12                         |
-| **pip install `python‑gitlab`** | `pip install python-gitlab`                |
-| **Personal Access Tokens**      | **`api`** scope on *both* GitLab instances |
-| **Export/Import permissions**   | Admin or Maintainer on all projects        |
-| **Shell access**                | For running scripts & storing archives     |
+| Requirement                     | Notes                                  |
+| ------------------------------- | -------------------------------------- |
+| **Python ≥ 3.8**                | Tested on 3.8 → 3.12                   |
+| **pip install `python‑gitlab`** | `pip install python-gitlab`            |
+| **Personal Access Tokens**      | `api` scope on *both* GitLab instances |
+| **Export/Import permissions**   | Admin or Maintainer on all projects    |
+| **Shell access**                | For running scripts & storing archives |
+
+> **Tip 💡** Store tokens with a secrets manager or environment variables. The scripts will automatically fall back to environment variables if present (see comments inside each script).
 
 ---
 
-## ⚡ Quick Start<a name="quick-start"></a>
+## Quick Start
 
 ```bash
-# 1 · Clone this repo
-git clone https://github.com/your‑org/gitlab-migration-toolkit.git
-cd gitlab-migration-toolkit
+# 1 · Clone this repo
+$ git clone https://github.com/your‑org/gitlab-migration-toolkit.git
+$ cd gitlab-migration-toolkit
 
-# 2 · Install dependencies
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt          # just python-gitlab
+# 2 · Create & activate virtual‑env
+$ python3 -m venv .venv && source .venv/bin/activate
+$ pip install -r requirements.txt   # currently only python-gitlab
 
-# 3 · Configure environment variables (safer than hard‑coding)
-export SRC_GITLAB=https://gitlab.example.com
-export SRC_TOKEN=glpat‑xxxxxxxxxxxxxxxx
-export DST_GITLAB=https://gitlab-dev.example.com
-export DST_TOKEN=glpat‑yyyyyyyyyyyyyyyy
+# 3 · Export environment variables (safer than hard‑coding)
+$ export SRC_GITLAB=https://gitlab.example.com
+$ export SRC_TOKEN=glpat‑xxxxxxxxxxxxxxxx
+$ export DST_GITLAB=https://gitlab-dev.example.com
+$ export DST_TOKEN=glpat‑yyyyyyyyyyyyyyyy
 
-# 4 · Export all projects under source group
-python export.py
+# 4 · Export all projects under source group
+$ python scripts/export.py
 
-# 5 · Import everything into destination group
-python import.py                         # or python selected_import.py
+# 5 · Import everything into destination group
+$ python scripts/import.py          # or python scripts/selected_import.py
 
-# 6 · Post‑import fixes
-python cleanup.py
-python remove_obsolete_branches.py
+# 6 · Post‑import fixes
+$ python scripts/cleanup.py
+$ python scripts/remove_obsolete_branches.py
 ```
 
 ---
 
-## 🔍 Script Walk‑Through<a name="script-walk-through"></a>
+## Script Walk‑Through
 
-### 5.1 export.py<a name="exportpy"></a>
+### 4.1 export.py<a name="exportpy"></a>
 
-| Step                                                           | Logic |
-| -------------------------------------------------------------- | ----- |
-| **Authenticate** to `SOURCE_GITLAB_URL`                        |       |
-| Fetch **all projects** in `back-office` (including sub‑groups) |       |
-| Call **Export API** (`POST /projects/:id/export`)              |       |
-| Poll until `export_status == finished`                         |       |
-| **Download tarball** in 1 MiB chunks → `project.path.tar.gz`   |       |
+| Step              | Purpose                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| Authenticate      | Login to `$SRC_GITLAB` with PAT                                |
+| Discover projects |  Lists every project in `back-office` incl. sub‑groups         |
+| Trigger export    | `POST /projects/:id/export`                                    |
+| Poll status       | Waits until `export_status == 'finished'`                      |
+| Download          | Streams tarball in 1 MiB chunks → `./exports/{project}.tar.gz` |
 
-### 5.2 import.py<a name="importpy"></a>
+### 4.2 import.py<a name="importpy"></a>
 
-| Step                                                                                                                                              | Logic |
-| ------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| Auth to **destination** GitLab                                                                                                                    |       |
-| Verify/auto‑create **target group**                                                                                                               |       |
-| Stream each `*.tar.gz` into **Import API** (`/projects/import`) with <br/>`namespace` + `namespace_id` → eliminates “root/Administrator” mistakes |       |
-| Poll `import_status` until *finished* / *failed*                                                                                                  |       |
-| Warn if imported into the **wrong namespace**                                                                                                     |       |
+| Step                | Purpose                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| Auth to destination | `$DST_GITLAB` PAT                                                                                  |
+| Verify target group | Auto‑create if missing (code ready for enhancement)                                                |
+| Stream import       | `POST /projects/import` supplying `namespace` & `namespace_id` to dodge “root/Administrator” traps |
+| Monitor             | Polls `import_status` every 5 s                                                                    |
+| Validate namespace  | Warns if import landed outside intended group                                                      |
 
-### 5.3 selected\_import.py<a name="selected_importpy"></a>
+### 4.3 selected\_import.py<a name="selected-importpy"></a>
 
-Same as **import.py** but lets you pass a **pick‑list** (`SELECTED_PROJECTS`)—handy for phased migrations or retries.
+Same as **import.py** but only for names in `SELECTED_PROJECTS`—ideal for re‑tries or phased rollouts.
 
-### 5.4 cleanup.py<a name="cleanuppy"></a>
+### 4.4 cleanup.py<a name="cleanuppy"></a>
 
-Scans for projects that landed in `root` or `Administrator`, then **deletes** them so you can re‑import cleanly.
+Deletes projects that mistakenly imported under `root` or any namespace in `WRONG_NAMESPACE_PATHS`.
 
-### 5.5 remove\_obsolete\_branches.py<a name="remove_obsolete-branchespy"></a>
+### 4.5 remove\_obsolete\_branches.py<a name="remove-obsolete-branchespy"></a>
 
-For **every project** in a group:
+For **every** repo in a group:
 
-1. Ensure a `demo` branch exists
-2. **Delete** all other branches (respecting protection rules)
-3. **Create** `demo2` from `demo`
-4. Set `demo` as the **default** branch
+1. Verify `demo` branch exists
+2. Delete **all** other branches (auto‑unprotect if needed)
+3. Create `demo2` from `demo`
+4. Set `demo` as default branch
 
-### 5.6 specific\_project\_remove\_branches.py<a name="specific_project_remove_branchespy"></a>
+### 4.6 specific\_project\_remove\_branches.py<a name="specific-project-remove-branchespy"></a>
 
-Same logic as above, but targets **one repo** (`TARGET_PROJECT_NAME`)—great for gradual roll‑outs.
-
----
-
-## 🛠️ Step‑by‑Step Migration Guide<a name="step-by-step-migration"></a>
-
-| # | Action                   | Command / Notes                                                                   |        |
-| - | ------------------------ | --------------------------------------------------------------------------------- | ------ |
-| 1 | **Back up**(optional)    | Snapshot runners, variables, CI templates                                         |        |
-| 2 | **Export** projects      | `python export.py` → `*.tar.gz` in working dir                                    |        |
-| 3 | **Verify** archives      | \`tar -tzf project.tar.gz                                                         | head\` |
-| 4 | **Import** into dest     | `python import.py` (bulk) **or** `python selected_import.py` (subset)             |        |
-| 5 | **Fix wrong namespaces** | `python cleanup.py`                                                               |        |
-| 6 | **Branch hygiene**       | `python remove_obsolete_branches.py` **or** `specific_project_remove_branches.py` |        |
-| 7 | **Validate CI/CD**       | Trigger pipelines, check secrets, runners                                         |        |
-| 8 | **Audit**                | Compare commit counts, tags, releases                                             |        |
+Same algorithm as above, but scoped to a **single** repo defined by `TARGET_PROJECT_NAME`.
 
 ---
 
-## 🆘 Troubleshooting<a name="troubleshooting"></a>
+## End‑to‑End Migration Guide
 
-| Symptom                              | Cause & Fix                                                               |
-| ------------------------------------ | ------------------------------------------------------------------------- |
-| `GitlabGetError: 404` fetching group | Token lacks **`read_api`** scope *or* wrong group path                    |
-| Import stuck at `scheduled`          | Destination runner is **paused**—check Admin > Rake tasks                 |
-| `/tmp/… no space left`               | Move exports to bigger disk or set `TMPDIR`                               |
-| Protected branch deletion fails      | Script auto‑unprotects; if it still fails, you lack **Maintainer** rights |
-
----
-
-## 🔧 Extending<a name="extending"></a>
-
-* **Overwrite logic**: set `overwrite=True` in `import_params` (already included).
-* **Tag/Release migration**: call the Releases API post‑import.
-* **CI variable migration**: iterate over `/projects/:id/variables`.
+| # | Action                           | Command / Notes                                                                     |        |
+| - | -------------------------------- | ----------------------------------------------------------------------------------- | ------ |
+| 1 | **Snapshot / Backup** (optional) | Backup runners, project variables, pipeline schedules                               |        |
+| 2 | **Export**                       | `python scripts/export.py` → `exports/*.tar.gz`                                     |        |
+| 3 | **Inspect** archives             | \`tar -tzf exports/<name>.tar.gz                                                    | head\` |
+| 4 | **Import**                       | `python scripts/import.py` (bulk) *or* `python scripts/selected_import.py` (subset) |        |
+| 5 | **Namespace sanity**             | `python scripts/cleanup.py`                                                         |        |
+| 6 | **Branch hygiene**               | `python scripts/remove_obsolete_branches.py` *or* targeted script                   |        |
+| 7 | **CI/CD validation**             | Trigger pipelines, verify secrets, runners                                          |        |
+| 8 | **Audit**                        | Compare commit counts, releases, tags                                               |        |
 
 ---
 
-## 📜 License<a name="license"></a>
+## Troubleshooting
 
-Released under the **MIT License** — free to use, modify, and share. Pull requests welcome!
+| Symptom                         | Cause & Fix                                                        |
+| ------------------------------- | ------------------------------------------------------------------ |
+| `GitlabGetError: 404` on group  | PAT lacks `read_api` scope *or* wrong `TARGET_GROUP_PATH`          |
+| Import stuck at **scheduled**   | Destination Sidekiq queue overloaded or instance runner **paused** |
+| `/tmp/… no space left`          | Move exports to larger disk or set `TMPDIR` env var                |
+| Protected branch deletion fails | Script unprotects automatically—ensure you’re **Maintainer**       |
+
+---
+
+## Extending the Toolkit
+
+* **Overwrite imports**: set `overwrite=True` in `import_params` (already done 🚀).
+* **Parallel exports**: wrap export calls with `concurrent.futures.ThreadPoolExecutor`.
+* **CI Variables & Releases**: iterate `/projects/:id/variables` and `/releases` after import.
+* **SaaS → Self-managed**: add mapping for group paths that differ between instances.
+
+---
+
+## License
+
+MIT © 2025
