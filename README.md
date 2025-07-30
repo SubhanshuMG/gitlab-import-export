@@ -12,17 +12,17 @@ Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.i
 
 ## Table of Contents
 
-1. [High‑Level Architecture](#high-level-architecture)
+1. [High‑Level-Architecture](#high-level-architecture)
 2. [Prerequisites](#prerequisites)
-3. [Quick Start](#quick-start)
-4. [Script Walk‑Through](#script-walk-through)
+3. [Quick-Start](#quick-start)
+4. [Script-Walk‑Through](#script-walk-through)
    1. [export.py](#exportpy)
    2. [import.py](#importpy)
    3. [selected\_import.py](#selected-importpy)
    4. [cleanup.py](#cleanuppy)
    5. [remove\_obsolete\_branches.py](#remove-obsolete-branchespy)
    6. [specific\_project\_remove\_branches.py](#specific-project-remove-branchespy)
-5. [End‑to‑End Migration Guide](#step-by-step-migration)
+5. [End‑to‑End-Migration-Guide](#End‑to‑End-Migration-Guide)
 6. [Troubleshooting](#troubleshooting)
 7. [Extending the Toolkit](#extending)
 8. [License](#license)
@@ -88,8 +88,8 @@ flowchart LR
 
 ```bash
 # 1 · Clone this repo
-$ git clone https://github.com/your‑org/gitlab-migration-toolkit.git
-$ cd gitlab-migration-toolkit
+$ git clone https://github.com/SubhanshuMG/gitlab-import-export.git
+$ cd gitlab-import-export
 
 # 2 · Create & activate virtual‑env
 $ python3 -m venv .venv && source .venv/bin/activate
