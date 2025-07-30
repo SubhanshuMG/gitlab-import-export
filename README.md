@@ -12,24 +12,25 @@ Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.i
 
 ## Table of Contents
 
-1. [High-Level Architecture](#high\-level\-architecture)
+1. [High-Level Architecture](#high-level-architecture)
 2. [Prerequisites](#prerequisites)
-3. [Quick Start](#quick\-start)
-4. [Script Walk‑Through](#script\-walk\-through)
+3. [Quick Start](#quick-start)
+4. [Script Walk-Through](#script-walk-through)
+
    1. [export.py](#exportpy)
    2. [import.py](#importpy)
    3. [selected\_import.py](#selected-importpy)
    4. [cleanup.py](#cleanuppy)
    5. [remove\_obsolete\_branches.py](#remove-obsolete-branchespy)
    6. [specific\_project\_remove\_branches.py](#specific-project-remove-branchespy)
-5. [End‑to‑End-Migration Guide](#End\‑to\‑End\-Migration-Guide)
+5. [End-to-End Migration Guide](#end-to-end-migration-guide)
 6. [Troubleshooting](#troubleshooting)
 7. [Extending the Toolkit](#extending)
 8. [License](#license)
 
 ---
 
-## High‑Level Architecture
+## High-Level Architecture
 
 ```mermaid
 flowchart LR
@@ -84,7 +85,7 @@ flowchart LR
 
 ---
 
-## Quick Start
+## Quick Start
 
 ```bash
 # 1 · Clone this repo
@@ -114,7 +115,7 @@ $ python scripts/remove_obsolete_branches.py
 
 ---
 
-## Script Walk‑Through
+## Script Walk-Through
 
 ### 4.1 export.py<a name="exportpy"></a>
 
@@ -159,7 +160,7 @@ Same algorithm as above, but scoped to a **single** repo defined by `TARGET_PROJ
 
 ---
 
-## End‑to‑End Migration Guide
+## End-to-End Migration Guide
 
 | # | Action                           | Command / Notes                                                                     |        |
 | - | -------------------------------- | ----------------------------------------------------------------------------------- | ------ |
@@ -196,4 +197,4 @@ Same algorithm as above, but scoped to a **single** repo defined by `TARGET_PROJ
 
 ## License
 
-MIT © 2025
+MIT © 2025 Your‑Org
