@@ -16,7 +16,6 @@ Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.i
 2. [Prerequisites](#prerequisites)
 3. [Quick Start](#quick-start)
 4. [Script Walk-Through](#script-walk-through)
-
    1. [export.py](#exportpy)
    2. [import.py](#importpy)
    3. [selected\_import.py](#selected-importpy)
@@ -35,13 +34,13 @@ Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.i
 ```mermaid
 flowchart LR
     subgraph "Source GitLab"
-        A((Group: back-office)) -->|GitLab Export API| B[export.py]
+        A((Group: group)) -->|GitLab Export API| B[export.py]
     end
 
     B -->|*.tar.gz| Store[(Shared Storage<br/>or Local Disk)]
 
     subgraph "Destination GitLab"
-        C[import.py / selected_import.py] -->|GitLab Import API| D((Group: back-office-dev))
+        C[import.py / selected_import.py] -->|GitLab Import API| D((Group: group1))
         D -->|Namespace Fix| cleanup[cleanup.py]
         D -->|Branch Hygiene| branchOps[remove_obsolete_branches.py<br/>specific_project_remove_branches.py]
     end
