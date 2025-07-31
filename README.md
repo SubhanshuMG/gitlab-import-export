@@ -6,7 +6,7 @@ A **battle‑tested Python toolkit** that automates:
 * **Clean, namespace‑safe imports** into a destination GitLab instance
 * **Post‑import cleanup** (fixing wrong namespaces, trimming obsolete branches, enforcing branch standards)
 
-Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.io/) SDK, these scripts have helped teams migrate **50 + micro‑repos** in minutes—while keeping branch hygiene spotless.
+Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.io/) SDK, these scripts have helped teams migrate **50 + micro‑repos** in minutes while keeping branch hygiene spotless.
 
 ---
 
@@ -81,7 +81,7 @@ flowchart LR
 | **Export/Import permissions**   | Admin or Maintainer on all projects    |
 | **Shell access**                | For running scripts & storing archives |
 
-> **Tip 💡** Store tokens with a secrets manager or environment variables. The scripts will automatically fall back to environment variables if present (see comments inside each script).
+> Store tokens with a secrets manager or environment variables. The scripts will automatically fall back to environment variables if present (see comments inside each script).
 
 ---
 
@@ -143,7 +143,7 @@ Same as **import.py** but only for names in `SELECTED_PROJECTS`—ideal for re�
 
 ### 4.4 cleanup.py<a name="cleanuppy"></a>
 
-Deletes projects that mistakenly imported under `root` or any namespace in `WRONG_NAMESPACE_PATHS`.
+Deletes projects that mistakenly got imported under `root` or any namespace in `WRONG_NAMESPACE_PATHS`.
 
 ### 4.5 remove\_obsolete\_branches.py<a name="remove-obsolete-branchespy"></a>
 
@@ -197,4 +197,4 @@ Same algorithm as above, but scoped to a **single** repo defined by `TARGET_PROJ
 
 ## License
 
-MIT © 2025 Your‑Org
+MIT © 2025
