@@ -25,7 +25,7 @@ Built with the official [`python‑gitlab`](https://python-gitlab.readthedocs.i
    6. [specific\_project\_remove\_branches.py](#specific-project-remove-branchespy)
 5. [End-to-End Migration Guide](#end-to-end-migration-guide)
 6. [Troubleshooting](#troubleshooting)
-7. [Extending the Toolkit](#extending)
+7. [Extending the Toolkit](#extending-the-toolkit)
 8. [License](#license)
 
 ---
@@ -188,7 +188,7 @@ Same algorithm as above, but scoped to a **single** repo defined by `TARGET_PROJ
 
 ## Extending the Toolkit
 
-* **Overwrite imports**: set `overwrite=True` in `import_params` (already done 🚀).
+* **Overwrite imports**: set `overwrite=True` in `import_params` (already done).
 * **Parallel exports**: wrap export calls with `concurrent.futures.ThreadPoolExecutor`.
 * **CI Variables & Releases**: iterate `/projects/:id/variables` and `/releases` after import.
 * **SaaS → Self-managed**: add mapping for group paths that differ between instances.
