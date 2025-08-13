@@ -121,7 +121,7 @@ $ python scripts/remove_obsolete_branches.py
 | Step              | Purpose                                                        |
 | ----------------- | -------------------------------------------------------------- |
 | Authenticate      | Login to `$SRC_GITLAB` with PAT                                |
-| Discover projects |  Lists every project in `back-office` incl. sub‑groups         |
+| Discover projects |  Lists every project in `group1` incl. sub‑groups         |
 | Trigger export    | `POST /projects/:id/export`                                    |
 | Poll status       | Waits until `export_status == 'finished'`                      |
 | Download          | Streams tarball in 1 MiB chunks → `./exports/{project}.tar.gz` |
